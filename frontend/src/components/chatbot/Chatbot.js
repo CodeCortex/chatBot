@@ -15,14 +15,15 @@ const Chatbot = () => {
     return savedMessages ? JSON.parse(savedMessages) : initialMessages;
   };
 
-  const [messages, setMessages] = useState(getStoredMessages);
+  const [messages, setMessages] = useState(getStoredMessages());
+  const [loading, setLoading] = useState(false); // Loading state
 
   // Function to toggle chatbox visibility and reset messages
   const toggleChat = () => {
     setIsOpen((prevIsOpen) => {
       if (prevIsOpen) {
-        // If closing the chatbox, clear localStorage and reset messages
-        localStorage.clear(); // Clear all localStorage data
+        // If closing the chatbox, clear only the specific messages
+        localStorage.removeItem('chatbotMessages'); // Clear only the messages
         setMessages(initialMessages);
       } else {
         // If opening the chatbox, reset messages
@@ -40,6 +41,8 @@ const Chatbot = () => {
     const updatedMessages = [...messages, userMessage];
     setMessages(updatedMessages);
 
+    setLoading(true); // Start loading
+
     try {
       const response = await fetch('http://127.0.0.1:5000/ask', {
         method: 'POST',
@@ -54,8 +57,11 @@ const Chatbot = () => {
       console.error('Error:', error);
       const botMessage = { text: 'Something went wrong. Please try again.', sender: 'bot' };
       setMessages((prevMessages) => [...prevMessages, botMessage]);
+    } finally {
+      setLoading(false); // End loading
     }
   };
+
   return (
     <>
       {/* Chatbot Icon */}
@@ -66,6 +72,13 @@ const Chatbot = () => {
         <div className="fixed bottom-20 right-4 bg-white p-4 shadow-lg rounded-lg w-[450px] h-[450px] flex flex-col">
           {/* Messages */}
           <ChatMessages messages={messages} />
+          {/* Loading Indicator */}
+          {loading && (
+            <div className="flex items-center justify-center mt-2">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+              <span className="ml-2">Loading...</span>
+            </div>
+          )}
           {/* Input */}
           <ChatInput handleSend={handleSend} />
         </div>
