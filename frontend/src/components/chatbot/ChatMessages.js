@@ -1,4 +1,3 @@
-// components/ChatMessages.js
 import React, { useRef, useEffect } from 'react';
 
 const ChatMessages = ({ messages }) => {
@@ -20,7 +19,9 @@ const ChatMessages = ({ messages }) => {
         >
           <div
             className={`chat-bubble ${
-              message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'
+              message.sender === 'user'
+                ? 'bg-blue-500 text-white text-right'
+                : 'bg-gray-200 text-gray-800 text-left'
             }`}
           >
             {message.text}
